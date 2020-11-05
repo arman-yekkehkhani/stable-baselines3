@@ -171,7 +171,7 @@ class ClipRewardEnv(gym.RewardWrapper):
 
 
 class WarpFrame(gym.ObservationWrapper):
-    def __init__(self, env: gym.Env, width: int = 84, height: int = 84):
+    def __init__(self, env: gym.Env, width: int = 84, height: int = 84, region: tuple = None):
         """
         Convert to grayscale and warp frames to 84x84 (default)
         as done in the Nature paper and later work.
@@ -179,10 +179,12 @@ class WarpFrame(gym.ObservationWrapper):
         :param env: the environment
         :param width:
         :param height:
+        :param region: the 2-tuple of slices specifying region to be cropped, top-left and bottom-right coordinates
         """
         gym.ObservationWrapper.__init__(self, env)
         self.width = width
         self.height = height
+        self.region = region
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(self.height, self.width, 1), dtype=env.observation_space.dtype
         )
@@ -194,6 +196,8 @@ class WarpFrame(gym.ObservationWrapper):
         :param frame: environment frame
         :return: the observation
         """
+        if self.region not None:
+            frame = frame[self.region]
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
         return frame[:, :, None]
@@ -227,6 +231,7 @@ class AtariWrapper(gym.Wrapper):
         env: gym.Env,
         noop_max: int = 30,
         frame_skip: int = 4,
+        region: tuple = None,
         screen_size: int = 84,
         override_num_noops: int = None,
         terminal_on_life_loss: bool = True,
@@ -238,7 +243,7 @@ class AtariWrapper(gym.Wrapper):
             env = EpisodicLifeEnv(env)
         if "FIRE" in env.unwrapped.get_action_meanings():
             env = FireResetEnv(env)
-        env = WarpFrame(env, width=screen_size, height=screen_size)
+        env = WarpFrame(env, width=screen_size, height=screen_size, region=region)
         if clip_reward:
             env = ClipRewardEnv(env)
 
