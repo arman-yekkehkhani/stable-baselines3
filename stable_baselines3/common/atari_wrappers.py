@@ -13,7 +13,7 @@ from stable_baselines3.common.type_aliases import GymObs, GymStepReturn
 
 
 class NoopResetEnv(gym.Wrapper):
-    def __init__(self, env: gym.Env, noop_max: int = 30):
+    def __init__(self, env: gym.Env, noop_max: int = 30, override_num_noops: int = None):
         """
         Sample initial states by taking random number of no-ops on reset.
         No-op is assumed to be action 0.
@@ -23,7 +23,7 @@ class NoopResetEnv(gym.Wrapper):
         """
         gym.Wrapper.__init__(self, env)
         self.noop_max = noop_max
-        self.override_num_noops = None
+        self.override_num_noops = override_num_noops
         self.noop_action = 0
         assert env.unwrapped.get_action_meanings()[0] == "NOOP"
 
@@ -227,10 +227,11 @@ class AtariWrapper(gym.Wrapper):
         noop_max: int = 30,
         frame_skip: int = 4,
         screen_size: int = 84,
+        override_num_noops: int = None,
         terminal_on_life_loss: bool = True,
         clip_reward: bool = True,
     ):
-        env = NoopResetEnv(env, noop_max=noop_max)
+        env = NoopResetEnv(env, noop_max=noop_max, override_num_noops=override_num_noops)
         env = MaxAndSkipEnv(env, skip=frame_skip)
         if terminal_on_life_loss:
             env = EpisodicLifeEnv(env)
