@@ -20,6 +20,7 @@ class NoopResetEnv(gym.Wrapper):
 
         :param env: the environment to wrap
         :param noop_max: the maximum value of no-ops to run
+        :param override_num_noops: the number of fixed no-ops
         """
         gym.Wrapper.__init__(self, env)
         self.noop_max = noop_max
