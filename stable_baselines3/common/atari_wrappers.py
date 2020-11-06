@@ -196,7 +196,7 @@ class WarpFrame(gym.ObservationWrapper):
         :param frame: environment frame
         :return: the observation
         """
-        if self.region not None:
+        if self.region:
             frame = frame[self.region]
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
